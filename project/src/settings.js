@@ -68,7 +68,7 @@
 	astrology.CIRCLE_STRONG = 2;
 	
 	// Color of lines in charts
-	astrology.LINE_COLOR = "#333";
+	astrology.LINE_COLOR = "#333333";
 	
 	// radius / INDOOR_CIRCLE_RADIUS_RATIO
 	astrology.INDOOR_CIRCLE_RADIUS_RATIO = 2;
@@ -118,7 +118,7 @@
 	astrology.SYMBOL_CUSP_12 = "12";
 	
 	// Cusps strength of lines
-	astrology.CUSPS_STROKE = 1;
+	astrology.CUSPS_STROKE = 2;
 	astrology.CUSPS_FONT_COLOR = "#000";	
 	
 	//Signs
@@ -164,9 +164,9 @@
 	// Aspects	
 	astrology.ASPECTS = { 
 		"conjunction":{"degree":0, "orbit":10, "color":"transparent"}, 
-		"square":{"degree":90, "orbit":8, "color":"#FF4500"}, 
-		"trine":{"degree":120, "orbit":8, "color":"#27AE60"},
-		"opposition":{"degree":180, "orbit":10, "color":"#27AE60"}
+		"square":{"degree":90, "orbit":8, "color":"#ff4500"},
+		"trine":{"degree":120, "orbit":8, "color":"#ff4500"},
+		"opposition":{"degree":180, "orbit":10, "color":"#000000"}
 		};	
 	
 	// Dignities

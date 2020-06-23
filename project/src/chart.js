@@ -57,6 +57,7 @@
 		radix.drawCusps();		
 		radix.drawAxis();	 
 		radix.drawCircles();
+		radix.drawTooltip();
 										 							
 		return radix;
 	 };
