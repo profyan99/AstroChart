@@ -17,7 +17,8 @@ module.exports = function (grunt) {
           'project/src/zodiac.js',
           'project/src/animation/timer.js',
           'project/src/animation/animator.js',
-          'project/src/utils.js'],
+          'project/src/utils.js',
+          'project/src/index.js'],
         dest: 'project/build/<%= pkg.name %>.js'
       }
     },
@@ -58,7 +59,16 @@ module.exports = function (grunt) {
           spawn: true,
         },
       },
-    }
+    },
+
+    copy: {
+      main: {
+        files: [
+          {expand: true, src: 'package.json', dest: 'dest/'},
+          {expand: true, src: 'project/src/**', dest: 'dest/'},
+        ],
+      },
+    },
   });
 
   grunt.registerTask('default', [
@@ -66,6 +76,6 @@ module.exports = function (grunt) {
     'watch'
   ]);
   grunt.registerTask('dev', ['jshint', 'concat']);
-  grunt.registerTask('build', ['concat', 'uglify']);
+  grunt.registerTask('build', ['copy']);
   grunt.registerTask('test', ['qunit']);
 };
