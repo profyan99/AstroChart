@@ -1380,6 +1380,18 @@ const svg = function (astrology) {
     return line;
   };
 
+  astrology.SVG.prototype.lineWithHover = function lineWithHover(x1, y1, x2, y2) {
+    const line = document.createElementNS(context.root.namespaceURI, 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', 'transparent');
+    line.setAttribute('stroke-width', astrology.HOVER_STRONG);
+    line.setAttribute('cursor', 'pointer');
+    return line;
+  };
+
   /**
    * Draw a circle
    *

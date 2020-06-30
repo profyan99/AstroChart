@@ -78,6 +78,8 @@ const settings = function( astrology ) {
 	
 	// ( radius / astrology.INNER_CIRCLE_RADIUS_RATIO ) / astrology.RULER_RADIUS 
 	astrology.RULER_RADIUS = 4;
+
+	astrology.HOVER_STRONG = 15;
 		
 	// Points
 	astrology.SYMBOL_SUN = "Sun";

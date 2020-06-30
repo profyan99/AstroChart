@@ -91,7 +91,6 @@ const radix = function (astrology) {
 
       start += step;
     }
-    ;
 
     // signs
     for (var i = 0, step = 30, start = 15 + this.shift, len = astrology.SYMBOL_SIGNS.length; i < len; i++) {
@@ -287,7 +286,7 @@ const radix = function (astrology) {
         line = this.paper.line(line.startX, line.startY, line.endX, line.endY);
         line.setAttribute('stroke', astrology.LINE_COLOR);
 
-        if (mainAxis.indexOf(i) != -1) {
+        if (mainAxis.indexOf(i) !== -1) {
           line.setAttribute('stroke-width', (astrology.SYMBOL_AXIS_STROKE * astrology.SYMBOL_SCALE));
         } else {
           line.setAttribute('stroke-width', (astrology.CUSPS_STROKE * astrology.SYMBOL_SCALE));
@@ -312,49 +311,56 @@ const radix = function (astrology) {
    */
   astrology.Radix.prototype.aspects = function (customAspects) {
 
-    var aspectsList = customAspects != null && Array.isArray(customAspects) ?
+    const aspectsList = customAspects != null && Array.isArray(customAspects) ?
       customAspects :
       new astrology.AspectCalculator(this.toPoints).radix(this.data.planets);
 
-    var universe = this.universe;
-    var wrapper = astrology.utils.getEmptyWrapper(universe, astrology.ID_CHART + '-' + astrology.ID_ASPECTS);
+    const universe = this.universe;
+    const wrapper = astrology.utils.getEmptyWrapper(universe, astrology.ID_CHART + '-' + astrology.ID_ASPECTS);
 
-    var duplicateCheck = [];
+    const duplicateCheck = [];
 
-    for (var i = 0, ln = aspectsList.length; i < ln; i++) {
+    let i = 0, ln = aspectsList.length;
+    for (; i < ln; i++) {
 
-      var key = aspectsList[i].aspect.name + '-' + aspectsList[i].point.name + '-' + aspectsList[i].toPoint.name;
-      var opositeKey = aspectsList[i].aspect.name + '-' + aspectsList[i].toPoint.name + '-' + aspectsList[i].point.name;
-      if (duplicateCheck.indexOf(opositeKey) == -1) {
+      const key = aspectsList[i].aspect.name + '-' + aspectsList[i].point.name + '-' + aspectsList[i].toPoint.name;
+      const oppositeKey = aspectsList[i].aspect.name + '-' + aspectsList[i].toPoint.name + '-' + aspectsList[i].point.name;
+      if (duplicateCheck.indexOf(oppositeKey) === -1) {
         duplicateCheck.push(key);
 
-        var startPoint = astrology.utils.getPointPosition(this.cx, this.cy, this.radius / astrology.INDOOR_CIRCLE_RADIUS_RATIO, aspectsList[i].toPoint.position + this.shift);
-        var endPoint = astrology.utils.getPointPosition(this.cx, this.cy, this.radius / astrology.INDOOR_CIRCLE_RADIUS_RATIO, aspectsList[i].point.position + this.shift);
+        const startPoint = astrology.utils.getPointPosition(this.cx, this.cy, this.radius / astrology.INDOOR_CIRCLE_RADIUS_RATIO, aspectsList[i].toPoint.position + this.shift);
+        const endPoint = astrology.utils.getPointPosition(this.cx, this.cy, this.radius / astrology.INDOOR_CIRCLE_RADIUS_RATIO, aspectsList[i].point.position + this.shift);
 
-        var line = this.paper.line(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+        const line = this.paper.line(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
         line.setAttribute('stroke', astrology.STROKE_ONLY ? astrology.LINE_COLOR : aspectsList[i].aspect.color);
         line.setAttribute('stroke-width', (astrology.CUSPS_STROKE * astrology.SYMBOL_SCALE));
         line.setAttribute('cursor', 'pointer');
-        line.addEventListener('mouseenter', (event) => {
-          const tooltipEvent = new CustomEvent('showTooltip', {
-            detail: {
-              show: true,
-              text: 'Test text',
-              position: [event.clientX, event.clientY],
-            },
+
+        const hoverLine = this.paper.lineWithHover(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+
+        (function (index, line) {
+          const { aspect } = aspectsList[index];
+          hoverLine.addEventListener('mouseenter', (event) => {
+            const tooltipEvent = new CustomEvent('showTooltip', {
+              detail: {
+                show: true,
+                text: `Градус: ${aspect.degree}, орбита: ${aspect.orbit}`,
+                position: [event.clientX, event.clientY],
+              },
+            });
+            document.dispatchEvent(tooltipEvent);
+            line.setAttribute('stroke-width', ((astrology.CUSPS_STROKE + 2) * astrology.SYMBOL_SCALE));
           });
-          document.dispatchEvent(tooltipEvent);
-          event.target.setAttribute('stroke-width', ((astrology.CUSPS_STROKE + 2) * astrology.SYMBOL_SCALE));
-        });
-        line.addEventListener('mouseout', (event) => {
-          const tooltipEvent = new CustomEvent('showTooltip', {
-            detail: {
-              show: false,
-            },
+          hoverLine.addEventListener('mouseout', () => {
+            const tooltipEvent = new CustomEvent('showTooltip', {
+              detail: {
+                show: false,
+              },
+            });
+            document.dispatchEvent(tooltipEvent);
+            line.setAttribute('stroke-width', (astrology.CUSPS_STROKE * astrology.SYMBOL_SCALE));
           });
-          document.dispatchEvent(tooltipEvent);
-          event.target.setAttribute('stroke-width', (astrology.CUSPS_STROKE * astrology.SYMBOL_SCALE));
-        });
+        })(i, line);
 
         line.setAttribute('data-name', aspectsList[i].aspect.name);
         line.setAttribute('data-degree', aspectsList[i].aspect.degree);
@@ -363,6 +369,7 @@ const radix = function (astrology) {
         line.setAttribute('data-precision', aspectsList[i].precision);
 
         wrapper.appendChild(line);
+        wrapper.appendChild(hoverLine);
       }
     }
 
