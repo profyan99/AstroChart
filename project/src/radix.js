@@ -95,8 +95,41 @@ const radix = function (astrology) {
     // signs
     for (var i = 0, step = 30, start = 15 + this.shift, len = astrology.SYMBOL_SIGNS.length; i < len; i++) {
       var position = astrology.utils.getPointPosition(this.cx, this.cy, this.radius - (this.radius / astrology.INNER_CIRCLE_RADIUS_RATIO) / 2, start);
-      wrapper.appendChild(this.paper.getSymbol(astrology.SYMBOL_SIGNS[i], position.x, position.y));
+
+      const symbol = this.paper.getSymbol(astrology.SYMBOL_SIGNS[i].id, position.x, position.y);
+
+      const rectSize = astrology.HOVER_STRONG * 2;
+      const symbolRect = this.paper.rect(position.x - astrology.HOVER_STRONG, position.y - astrology.HOVER_STRONG, rectSize, rectSize);
+      symbolRect.setAttribute('cursor', 'pointer');
+
+      wrapper.appendChild(symbol);
+      wrapper.appendChild(symbolRect);
       start += step;
+
+      (function (index) {
+        symbolRect.addEventListener('mouseenter', (event) => {
+          const {name, description} = astrology.SYMBOL_SIGNS[index];
+          const text = `<b>${name}</b><br>${description}`;
+          const tooltipEvent = new CustomEvent('showTooltip', {
+            detail: {
+              show: true,
+              text,
+              position: [event.clientX, event.clientY],
+            },
+          });
+          document.dispatchEvent(tooltipEvent);
+          symbol.firstElementChild.setAttribute('stroke-width', astrology.POINTS_STROKE * 1.5);
+        });
+        symbolRect.addEventListener('mouseout', () => {
+          const tooltipEvent = new CustomEvent('showTooltip', {
+            detail: {
+              show: false,
+            },
+          });
+          document.dispatchEvent(tooltipEvent);
+          symbol.firstElementChild.setAttribute('stroke-width', astrology.POINTS_STROKE);
+        });
+      })(i);
     }
   };
 
@@ -323,8 +356,8 @@ const radix = function (astrology) {
     let i = 0, ln = aspectsList.length;
     for (; i < ln; i++) {
 
-      const key = aspectsList[i].aspect.name + '-' + aspectsList[i].point.name + '-' + aspectsList[i].toPoint.name;
-      const oppositeKey = aspectsList[i].aspect.name + '-' + aspectsList[i].toPoint.name + '-' + aspectsList[i].point.name;
+      const key = aspectsList[i].aspect.id + '-' + aspectsList[i].point.id + '-' + aspectsList[i].toPoint.id;
+      const oppositeKey = aspectsList[i].aspect.id + '-' + aspectsList[i].toPoint.id + '-' + aspectsList[i].point.id;
       if (duplicateCheck.indexOf(oppositeKey) === -1) {
         duplicateCheck.push(key);
 
@@ -339,12 +372,17 @@ const radix = function (astrology) {
         const hoverLine = this.paper.lineWithHover(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 
         (function (index, line) {
-          const { aspect } = aspectsList[index];
+          const { aspect, point, toPoint } = aspectsList[index];
+          const { name: fromPlanet } = astrology.utils.getPlanetInfo(point.id);
+          const { name: toPlanet } = astrology.utils.getPlanetInfo(toPoint.id);
+
+          const text = `${aspect.name} (${aspect.degree}) ${fromPlanet} <> ${toPlanet}`;
+
           hoverLine.addEventListener('mouseenter', (event) => {
             const tooltipEvent = new CustomEvent('showTooltip', {
               detail: {
                 show: true,
-                text: `Градус: ${aspect.degree}, орбита: ${aspect.orbit}`,
+                text,
                 position: [event.clientX, event.clientY],
               },
             });
@@ -362,10 +400,10 @@ const radix = function (astrology) {
           });
         })(i, line);
 
-        line.setAttribute('data-name', aspectsList[i].aspect.name);
+        line.setAttribute('data-name', aspectsList[i].aspect.id);
         line.setAttribute('data-degree', aspectsList[i].aspect.degree);
-        line.setAttribute('data-point', aspectsList[i].point.name);
-        line.setAttribute('data-toPoint', aspectsList[i].toPoint.name);
+        line.setAttribute('data-point', aspectsList[i].point.id);
+        line.setAttribute('data-toPoint', aspectsList[i].toPoint.id);
         line.setAttribute('data-precision', aspectsList[i].precision);
 
         wrapper.appendChild(line);
@@ -478,16 +516,18 @@ const radix = function (astrology) {
     tooltip.style.left = '9999px';
     tooltip.style.maxWidth = '300px';
     tooltip.style.backgroundColor = 'rgba(33,33,33,.9)';
-    tooltip.style.padding = '4px';
+    tooltip.style.padding = '8px';
     tooltip.style.borderRadius = '5px';
     tooltip.style.color = '#fff';
     tooltip.style.font = '10pt Tahoma';
+    tooltip.style.fontWeight = 'normal';
     tooltip.style.display = 'none';
+
     document.addEventListener('showTooltip', (event) => {
-      const { show, text, position } = event.detail;
-      if(show) {
+      const {show, text, position} = event.detail;
+      if (show) {
         tooltip.style.display = 'block';
-        tooltip.innerText = text;
+        tooltip.innerHTML = text;
         tooltip.style.left = `${position[0] + 20}px`;
         tooltip.style.top = `${position[1] + 20}px`;
       } else {

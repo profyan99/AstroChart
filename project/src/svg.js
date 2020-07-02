@@ -207,7 +207,6 @@ const svg = function (astrology) {
     node.setAttribute('stroke-width', astrology.POINTS_STROKE);
     node.setAttribute('fill', 'none');
     wrapper.appendChild(node);
-
     return wrapper;
   };
 
@@ -1432,6 +1431,16 @@ const svg = function (astrology) {
     text.appendChild(document.createTextNode(txt));
     text.setAttribute('transform', 'translate(' + (-x * (astrology.SYMBOL_SCALE - 1)) + ',' + (-y * (astrology.SYMBOL_SCALE - 1)) + ') scale(' + astrology.SYMBOL_SCALE + ')');
     return text;
+  };
+
+  astrology.SVG.prototype.rect = function (x, y, width, height) {
+    const rect = document.createElementNS(context.root.namespaceURI, 'rect');
+    rect.setAttribute('x', x);
+    rect.setAttribute('y', y);
+    rect.setAttribute('width', width);
+    rect.setAttribute('height', height);
+    rect.setAttribute('fill', 'transparent');
+    return rect;
   };
 
 };
